@@ -14,6 +14,8 @@ def add_msci_regions():
     fundamentals_2016 = pd.read_hdf("../sources/data_ANR_2016.hdf5").sort_index()
     fundamentals_2017 = pd.read_hdf("../sources/data_ANR_2017.hdf5").sort_index()
     
+    print ("Uploaded from: ../sources/data_ANR_201*.hdf5 ")
+    
     sectors = fundamentals_2016.Sector.value_counts()
     regions = fundamentals_2016.Region.value_counts()
     countries = fundamentals_2016.Country.value_counts()
@@ -95,5 +97,7 @@ def add_msci_regions():
     
     fundamentals_2016.to_hdf('../sources/data_ANR_2016_msci_regions.hdf5', 'dataset1/x')
     fundamentals_2017.to_hdf('../sources/data_ANR_2017_msci_regions.hdf5', 'dataset1/x')
+    
+    print ("---- Downloaded to: ../sources/data_ANR_201*_msci_regions.hdf5")
     
     return True

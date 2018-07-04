@@ -15,8 +15,12 @@ def add_features():
     fundamentals_2016.columns = fundamentals_2016.columns.str.replace(r'\s+', '_')
     fundamentals_2017.columns = fundamentals_2017.columns.str.replace(r'\s+', '_')
     
+    print ("Uploaded from: ../sources/fundamentals_2017_msci_regions.hdf5")
+    
     price_result_2016 = pd.read_hdf("../sources/prices_2016.hdf5", "dataset1/x")
     price_result_2017 = pd.read_hdf("../sources/prices_2017.hdf5", "dataset1/x")
+    
+    print ("Uploaded from: ../sources/prices_2016.hdf5")
     
     tickers = fundamentals_2016.T.columns.tolist()
     
@@ -101,18 +105,23 @@ def add_features():
     
     
     ''' Beta ''' 
+    from scipy import stats
     # 2016
     tickers = price_result_2016.columns.tolist()
     tickers.remove("Date")
     tickers.remove("S&P500")
     tickers.remove("IRX")
     benchmark_returns = help.p_returns(price_result_2016['S&P500'])
-    betas = {}
+    betas, betas_ols = {}, {}
     for tik in tickers:
         p_returns_tik = help.p_returns(price_result_2016[tik])
         var_tik = np.var(p_returns_tik)
         cov_tik = np.cov(np.vstack((benchmark_returns, p_returns_tik)).T, rowvar  = False)[0, 1]
         betas[tik] = cov_tik/var_tik
+        
+        slope, intercept, r_value, p_value, std_err = stats.linregress(help.p_returns(price_result_2016[tik]), benchmark_returns)
+        betas_ols[tik] = slope # it's a match!
+        
     betas = pd.Series(betas, name = 'Beta')
     fundamentals_2016['Beta'] = betas
     
@@ -141,25 +150,25 @@ def add_features():
          excess = np.subtract(p_returns_tik, benchmark_returns).mean()
          dev_ret = np.std(p_returns_tik)
          sharps[tik] = excess/dev_ret
-    sharps = pd.Series(sharps, name = 'Sharpe_Ratio')
-    fundamentals_2016['Sharpe_Ratio'] = sharps
+    sharps = pd.Series(sharps, name = 'Sharpe_Ratio_120d')
+    fundamentals_2016['Sharpe_Ratio_120d'] = sharps
     del sharps, excess, dev_ret, tik, benchmark_returns, p_returns_tik, risk_free_return_2016
     
-    # 2017
-    risk_free_return_2017 = 1.475
-    #benchmark_returns = help.p_returns(price_result_2017['IRX'])
-    benchmark_returns = np.full((120, ), risk_free_return_2017)
-    sharps = {}
-    for tik in tickers:
-         p_returns_tik = help.p_returns(price_result_2017[tik])
-         excess = np.subtract(p_returns_tik, benchmark_returns).mean()
-         dev_ret = np.std(p_returns_tik)
-         sharps[tik] = excess/dev_ret
-    sharps = pd.Series(sharps, name = 'Sharpe_Ratio')
-    fundamentals_2017['Sharpe_Ratio'] = sharps
-    del sharps, excess, dev_ret, tik, benchmark_returns, p_returns_tik, risk_free_return_2017
-
-    
+#    # 2017
+#    risk_free_return_2017 = 1.475
+#    #benchmark_returns = help.p_returns(price_result_2017['IRX'])
+#    benchmark_returns = np.full((120, ), risk_free_return_2017)
+#    sharps = {}
+#    for tik in tickers:
+#         p_returns_tik = help.p_returns(price_result_2017[tik])
+#         excess = np.subtract(p_returns_tik, benchmark_returns).mean()
+#         dev_ret = np.std(p_returns_tik)
+#         sharps[tik] = excess/dev_ret
+#    sharps = pd.Series(sharps, name = 'Sharpe_Ratio')
+#    fundamentals_2017['Sharpe_Ratio'] = sharps
+#    del sharps, excess, dev_ret, tik, benchmark_returns, p_returns_tik, risk_free_return_2017
+#
+#    
     ''' Information ratio '''
     # 2016
     benchmark_returns = help.p_returns(price_result_2016['S&P500'])
@@ -170,37 +179,43 @@ def add_features():
         avg_exc = excess.mean()
         tracking_error = np.std(excess)
         inf_ratios[tik] = avg_exc / tracking_error
-    inf_ratios = pd.Series(inf_ratios, name = 'Info_Ratio')
-    fundamentals_2016['Info_Ratio'] = inf_ratios
+    inf_ratios = pd.Series(inf_ratios, name = 'Info_Ratio_120d')
+    fundamentals_2016['Info_Ratio_120d'] = inf_ratios
     del avg_exc, benchmark_returns, inf_ratios, p_returns_tik, tik, tracking_error, excess
     
-    # 2017
-    benchmark_returns = help.p_returns(price_result_2017['S&P500'])
-    inf_ratios = {}
-    for tik in tickers:
-        p_returns_tik = help.p_returns(price_result_2017[tik])
-        excess = np.subtract(p_returns_tik, benchmark_returns)
-        avg_exc = excess.mean()
-        tracking_error = np.std(excess)
-        inf_ratios[tik] = avg_exc / tracking_error
-    inf_ratios = pd.Series(inf_ratios, name = 'Info_Ratio')
-    fundamentals_2017['Info_Ratio'] = inf_ratios
-    
-    del avg_exc, benchmark_returns, inf_ratios, p_returns_tik, tik, tracking_error, excess
-    
+#    # 2017
+#    benchmark_returns = help.p_returns(price_result_2017['S&P500'])
+#    inf_ratios = {}
+#    for tik in tickers:
+#        p_returns_tik = help.p_returns(price_result_2017[tik])
+#        excess = np.subtract(p_returns_tik, benchmark_returns)
+#        avg_exc = excess.mean()
+#        tracking_error = np.std(excess)
+#        inf_ratios[tik] = avg_exc / tracking_error
+#    inf_ratios = pd.Series(inf_ratios, name = 'Info_Ratio')
+#    fundamentals_2017['Info_Ratio'] = inf_ratios
+#    
+#    del avg_exc, benchmark_returns, inf_ratios, p_returns_tik, tik, tracking_error, excess
+#    
     del tickers
+    
+
     
     ''' Save files '''
     fundamentals_2016.to_hdf("../../ml_advisor/data/fundamentals_2016_with_feat_msci_regions.hdf5", "dataset1/x")
     fundamentals_2017.to_hdf("../../ml_advisor/data/fundamentals_2017_with_feat_msci_regions.hdf5", "dataset1/x")
+    print ("---- Downloaded to: ../../ml_advisor/data/fundamentals_201*_with_feat_msci_regions.hdf5")
     
     price_result_2016.to_hdf("../../ml_advisor/data/prices_2016.hdf5", "dataset1/x")
     price_result_2017.to_hdf("../../ml_advisor/data/prices_2017.hdf5", "dataset1/x")
+    print ("---- Downloaded to: ../../ml_advisor/data/prices_201*.hdf5.hdf5")
     
     fundamentals_2016.to_hdf("../sources/fundamentals_2016_with_feat_msci_regions.hdf5", "dataset1/x")
     fundamentals_2017.to_hdf("../sources/fundamentals_2017_with_feat_msci_regions.hdf5", "dataset1/x")
+    print ("---- Downloaded to: ../sources/fundamentals_201*_with_feat_msci_regions.hdf5")
     
     price_result_2016.to_hdf("../sources/prices_2016.hdf5", "dataset1/x")
     price_result_2017.to_hdf("../sources/prices_2017.hdf5", "dataset1/x")
+    print ("---- Downloaded to: ../sources/prices_201*.hdf5")
     
     return True

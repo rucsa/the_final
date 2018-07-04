@@ -15,6 +15,8 @@ def check_data_and_prices():
     fundamentals_2016 = pd.read_hdf("../sources/data_ANR_2016_msci_regions.hdf5")
     fundamentals_2017 = pd.read_hdf("../sources/data_ANR_2017_msci_regions.hdf5")
     
+    print ("Uploaded from: ../sources/data_ANR_201*_msci_regions.hdf5 ")
+    
     st_2016 = datetime.datetime(2016, 7, 12, 0, 0)
     en_2016 = datetime.datetime(2016, 12, 30, 0, 0)
     prices_2016 = pd.read_hdf("../sources/Prices_nasdaq_allmydata_total_data.hdf5")[st_2016:en_2016].dropna(axis = 1, how = 'any')
@@ -24,6 +26,7 @@ def check_data_and_prices():
     en_2017 = datetime.datetime(2017, 12, 30, 0, 0)
     prices_2017 = pd.read_hdf("../sources/Prices_nasdaq_allmydata_total_data.hdf5")[st_2017:en_2017].dropna(axis = 1, how = 'any')
     
+    print ("Uploaded from: ../sources/Prices_nasdaq_allmydata_total_data.hdf5 ")
     
     ''' Filter only complete info tickers ''' # you are putting them back somewhere
     tickers_2016 = prices_2016.columns.tolist()
@@ -82,7 +85,7 @@ def check_data_and_prices():
     
     del rf_date
     
-    ''' Add treasury bills returns '''
+    ''' Add treasury bills prices '''
     risk_free_2016 = pd.read_csv("../sources/risk_free_return_IRX_2016.csv")[['Date', 'Adj Close']].rename(columns = {'Adj Close':'IRX'})
     rf_date = risk_free_2016.Date
     risk_free_2016 = risk_free_2016.drop('Date', axis = 1)
@@ -114,8 +117,9 @@ def check_data_and_prices():
     
     fundamentals_2016.to_hdf("../sources/fundamentals_2016_msci_regions.hdf5", "dataset1/x")
     fundamentals_2017.to_hdf("../sources/fundamentals_2017_msci_regions.hdf5", "dataset1/x")
+    print ("---- Downloaded to: ../sources/fundamentals_201*_msci_regions.hdf5")
     
     price_result_2016.to_hdf("../sources/prices_2016.hdf5", "dataset1/x")
     price_result_2017.to_hdf("../sources/prices_2017.hdf5", "dataset1/x")
-    
+    print ("---- Downloaded to: ../sources/prices_201*.hdf5")
     return True
