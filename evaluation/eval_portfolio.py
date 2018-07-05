@@ -20,6 +20,8 @@ stocks_2017 = pd.read_hdf("../ml_advisor/data/fundamentals_2017_with_feat_msci_r
 portfolio_filename = "portfolios_ml/correlations/ml_correlations_portfolio_agg_1.hdf5"
 portfolio = pd.read_hdf(portfolio_filename, "dataset1/x")
 
+benchmark = pd.read_hdf("../data/sources/benchmark_returns_2017.hdf5", "dataset1/x")['S&P500']
+
 
 #output excel 
 filename = 'ml_correlations_portfolio_agg_1.xlsx'
@@ -27,58 +29,85 @@ filepath = 'result_tables/'
 
 
 #config
-results = {}
+p_returns = {}
+p_sharpe = {}
+p_info = {}
 var_m, st_dev = calculate.stats_market(2016)
 n = len(portfolio)
 w = 0.05
 
-#Portfolio variance
+#Portfolio variance # do for 2017
 variance = calculate.portfolio_variance(stocks_2016, portfolio, w, n, var_m)
 print('portfolio variance: %.08f' % variance)
-results['Portfolio Variance'] = variance
+p_returns['Portfolio Variance'] = variance
 
 
-#Returns after 1 month 
+#After 1 month 
+#   returns
 returns = 0
 for i in range(0, n):
     stock1 = stocks_2017.loc[stocks_2017['Name'] == portfolio[i]]
     if not math.isnan(stock1['Returns_1m'].values[0]):
         returns = returns + w * stock1['Returns_1m'].values[0]
 print ('returns after 1 month: {}'.format(returns))
-results['Returns after 1 month'] = returns
+p_returns['After 1 month'] = returns
 
-#Returns after 3 months 
+#   sharpe
+portfolio_stdev = math.sqrt(variance) # per period
+risk_free_return = 1.113 / 100
+sharpe = ( returns - risk_free_return ) / portfolio_stdev
+
+sharp = 0
+for i in range(0, n):
+    stock1 = stocks_2017.loc[stocks_2017['Name'] == portfolio[i]]
+    if not math.isnan(stock1['Sharpe_1m'].values[0]):
+        sharp = sharp + stock1['Sharpe_1m'].values[0]
+
+#   info
+
+
+#After 3 months 
 returns = 0
 for i in range(0, n):
     stock1 = stocks_2017.loc[stocks_2017['Name'] == portfolio[i]]
     if not math.isnan(stock1['Returns_3m'].values[0]):
         returns = returns + w * stock1['Returns_3m'].values[0]
 print ('returns after 3 months: {}'.format(returns))
-results['Returns after 3 months'] = returns
+p_returns['After 3 months'] = returns
 
-#Returns after 6 months 
+#   sharpe
+portfolio_stdev = math.sqrt(variance) # per period
+
+#   info
+
+#After 6 months 
 returns = 0
 for i in range(0, n):
     stock1 = stocks_2017.loc[stocks_2017['Name'] == portfolio[i]]
     if not math.isnan(stock1['Returns_3m'].values[0]):
         returns = returns + w * stock1['Returns_3m'].values[0]
 print ('returns after 6 months: {}'.format(returns))
-results['Returns after 6 months'] = returns
+p_returns['After 6 months'] = returns
 
-#Returns after 12 months
+#   sharpe
+portfolio_stdev = math.sqrt(variance) # per period
+
+#   info
+
+#After 12 months
 returns = 0
 for i in range(0, n):
     stock1 = stocks_2017.loc[stocks_2017['Name'] == portfolio[i]]
     if not math.isnan(stock1['Returns_12m'].values[0]):
         returns = returns + w * stock1['Returns_12m'].values[0]
 print ('returns after 12 months: {}'.format(returns))
-results['Returns after 12 months'] = returns
+p_returns['After 1 year'] = returns
 
+#   sharpe
+portfolio_stdev = math.sqrt(variance) # per period
 
-# Sharpe ratio 
+#   info
 
-
-# Information Ratio '''
 
 
 ''' Print to excel '''

@@ -154,21 +154,21 @@ def add_features():
     fundamentals_2016['Sharpe_Ratio_120d'] = sharps
     del sharps, excess, dev_ret, tik, benchmark_returns, p_returns_tik, risk_free_return_2016
     
-#    # 2017
-#    risk_free_return_2017 = 1.475
-#    #benchmark_returns = help.p_returns(price_result_2017['IRX'])
-#    benchmark_returns = np.full((120, ), risk_free_return_2017)
-#    sharps = {}
-#    for tik in tickers:
-#         p_returns_tik = help.p_returns(price_result_2017[tik])
-#         excess = np.subtract(p_returns_tik, benchmark_returns).mean()
-#         dev_ret = np.std(p_returns_tik)
-#         sharps[tik] = excess/dev_ret
-#    sharps = pd.Series(sharps, name = 'Sharpe_Ratio')
-#    fundamentals_2017['Sharpe_Ratio'] = sharps
-#    del sharps, excess, dev_ret, tik, benchmark_returns, p_returns_tik, risk_free_return_2017
-#
-#    
+    # 2017
+    risk_free_return_2017 = 1.475
+    #benchmark_returns = help.p_returns(price_result_2017['IRX'])
+    benchmark_returns = np.full((120, ), risk_free_return_2017)
+    sharps = {}
+    for tik in tickers:
+         p_returns_tik = help.p_returns(price_result_2017[tik])
+         excess = np.subtract(p_returns_tik, benchmark_returns).mean()
+         dev_ret = np.std(p_returns_tik)
+         sharps[tik] = excess/dev_ret
+    sharps = pd.Series(sharps, name = 'Sharpe_Ratio')
+    fundamentals_2017['Sharpe_Ratio'] = sharps
+    del sharps, excess, dev_ret, tik, benchmark_returns, p_returns_tik, risk_free_return_2017
+
+    
     ''' Information ratio '''
     # 2016
     benchmark_returns = help.p_returns(price_result_2016['S&P500'])
@@ -183,20 +183,20 @@ def add_features():
     fundamentals_2016['Info_Ratio_120d'] = inf_ratios
     del avg_exc, benchmark_returns, inf_ratios, p_returns_tik, tik, tracking_error, excess
     
-#    # 2017
-#    benchmark_returns = help.p_returns(price_result_2017['S&P500'])
-#    inf_ratios = {}
-#    for tik in tickers:
-#        p_returns_tik = help.p_returns(price_result_2017[tik])
-#        excess = np.subtract(p_returns_tik, benchmark_returns)
-#        avg_exc = excess.mean()
-#        tracking_error = np.std(excess)
-#        inf_ratios[tik] = avg_exc / tracking_error
-#    inf_ratios = pd.Series(inf_ratios, name = 'Info_Ratio')
-#    fundamentals_2017['Info_Ratio'] = inf_ratios
-#    
-#    del avg_exc, benchmark_returns, inf_ratios, p_returns_tik, tik, tracking_error, excess
-#    
+    # 2017
+    benchmark_returns = help.p_returns(price_result_2017['S&P500'])
+    inf_ratios = {}
+    for tik in tickers:
+        p_returns_tik = help.p_returns(price_result_2017[tik])
+        excess = np.subtract(p_returns_tik, benchmark_returns)
+        avg_exc = excess.mean()
+        tracking_error = np.std(excess)
+        inf_ratios[tik] = avg_exc / tracking_error
+    inf_ratios = pd.Series(inf_ratios, name = 'Info_Ratio')
+    fundamentals_2017['Info_Ratio'] = inf_ratios
+    
+    del avg_exc, benchmark_returns, inf_ratios, p_returns_tik, tik, tracking_error, excess
+    
     del tickers
     
 

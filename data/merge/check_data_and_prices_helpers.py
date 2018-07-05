@@ -109,8 +109,8 @@ def calculate_volatility_120_days(df):
         current = df[tic]
         intraday_returns = []
         for i in range(1, len(current)):
-            #intraday_returns.append(current[i] / current[i-1] - 1) 
-            intraday_returns.append(math.log(current[i] / current[i-1]))
+            intraday_returns.append(current[i] / current[i-1] - 1) 
+            #intraday_returns.append(math.log(current[i] / current[i-1]))
         vol_dict[tic] = np.std(intraday_returns) 
     return vol_dict
 
